@@ -4,6 +4,7 @@ using Anthropic.Models.Messages;
 using DrivePulse.Api.Data;
 using DrivePulse.Api.Domain;
 using Microsoft.EntityFrameworkCore;
+using OpenAI.Chat;
 
 namespace DrivePulse.Api.Features;
 
@@ -25,6 +26,7 @@ public sealed class AssistantService(DrivePulseDb db, IConfiguration configurati
         Regras:
         - Todo valor em reais que você citar precisa vir da ferramenta simular_custos. Chame a ferramenta antes de responder qualquer pergunta com número, mesmo que pareça simples.
         - Se o cliente mudar uma premissa (preço, revenda, prazo, entrada, juros), passe só esse campo para a ferramenta; os demais usam os valores padrão do contrato.
+        - Se o cliente mudar o prazo sem dizer a revenda, avise em uma frase que a revenda padrão é a da FIPE para 2 anos e que, num prazo maior, o carro valeria menos.
         - Responda em português do Brasil, em até 5 frases curtas, sem markdown, sem listas e sem títulos.
         - Diga em uma frase qual premissa mais pesa no resultado.
         - Você não executa ações: renovar, trocar de plano ou comprar só acontece pelo app, com confirmação do cliente. Se pedirem isso, explique e não prometa nada.
@@ -53,11 +55,19 @@ public sealed class AssistantService(DrivePulseDb db, IConfiguration configurati
         var question = request.Question?.Trim();
         if (string.IsNullOrEmpty(question) || question.Length > 500)
             throw new ArgumentException("Escreva uma pergunta de até 500 caracteres.");
-        var apiKey = configuration["ANTHROPIC_API_KEY"];
-        if (string.IsNullOrWhiteSpace(apiKey))
+        var anthropicKey = configuration["ANTHROPIC_API_KEY"];
+        var openAiKey = configuration["OPENAI_API_KEY"];
+        if (string.IsNullOrWhiteSpace(anthropicKey) && string.IsNullOrWhiteSpace(openAiKey))
             throw new AssistantUnavailableException("O assistente de IA não está configurado nesta demonstração.");
 
         var price = (await db.Subscriptions.AsNoTracking().SingleAsync(ct)).MonthlyPrice;
+        return string.IsNullOrWhiteSpace(anthropicKey)
+            ? await AskOpenAi(question, openAiKey!, price, ct)
+            : await AskClaude(question, anthropicKey, price, ct);
+    }
+
+    async Task<AssistantAnswer> AskClaude(string question, string apiKey, decimal price, CancellationToken ct)
+    {
         var client = new AnthropicClient { ApiKey = apiKey };
         List<MessageParam> messages = [new() { Role = Role.User, Content = question }];
         var calculations = new List<AssistantToolCall>();
@@ -104,6 +114,40 @@ public sealed class AssistantService(DrivePulseDb db, IConfiguration configurati
                 return new(string.Join("\n", text).Trim(), calculations);
 
             messages = [.. messages, new() { Role = Role.Assistant, Content = assistantContent }, new() { Role = Role.User, Content = toolResults }];
+        }
+        logger.LogWarning("Assistente atingiu o limite de {Turns} turnos.", MaxTurns);
+        return new("Não consegui concluir a conta agora. Tente perguntar de outro jeito.", calculations);
+    }
+
+    // Mesmo agente sobre a API da OpenAI (function calling), para quando só essa chave estiver configurada.
+    async Task<AssistantAnswer> AskOpenAi(string question, string apiKey, decimal price, CancellationToken ct)
+    {
+        var client = new ChatClient(configuration["OPENAI_MODEL"] ?? "gpt-5-mini", apiKey);
+        var options = new ChatCompletionOptions
+        {
+            Tools =
+            {
+                ChatTool.CreateFunctionTool(ToolName, CostTool.Description,
+                    BinaryData.FromObjectAsJson(new { type = "object", properties = CostTool.InputSchema.Properties })),
+            },
+        };
+        List<ChatMessage> messages = [new SystemChatMessage(SystemPrompt), new UserChatMessage(question)];
+        var calculations = new List<AssistantToolCall>();
+
+        for (var turn = 0; turn < MaxTurns; turn++)
+        {
+            ChatCompletion completion = await client.CompleteChatAsync(messages, options, ct);
+            if (completion.FinishReason != ChatFinishReason.ToolCalls)
+                return new(string.Join("\n", completion.Content.Select(x => x.Text)).Trim(), calculations);
+
+            messages.Add(new AssistantChatMessage(completion));
+            foreach (var call in completion.ToolCalls)
+            {
+                var input = call.FunctionArguments.ToString();
+                var (result, isError) = RunTool(call.FunctionName, input, price);
+                calculations.Add(new(call.FunctionName, input, result));
+                messages.Add(new ToolChatMessage(call.Id, isError ? $"Erro: {result}" : result));
+            }
         }
         logger.LogWarning("Assistente atingiu o limite de {Turns} turnos.", MaxTurns);
         return new("Não consegui concluir a conta agora. Tente perguntar de outro jeito.", calculations);

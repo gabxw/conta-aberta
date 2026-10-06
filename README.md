@@ -63,7 +63,7 @@ flowchart LR
 |---|---|
 | API | .NET 10, ASP.NET Core (minimal APIs) |
 | Regras | `OwnershipCalculator` e `MileageCalculator`, determinísticos e testados |
-| Assistente | SDK oficial da Anthropic para C#, com tool use |
+| Assistente | SDK oficial da Anthropic para C#, com tool use (ou SDK da OpenAI, com function calling) |
 | Banco | PostgreSQL 17 com Entity Framework Core 10 |
 | Web | Next.js, React e TypeScript, com proxy de mesma origem para a API |
 | Ambiente | Docker Compose |
@@ -88,7 +88,7 @@ docker compose up --build -d
 - API: http://localhost:5080/api/v1/account
 - OpenAPI: http://localhost:5080/openapi/v1.json
 
-Para ligar o assistente de IA, crie um arquivo `.env` na raiz com `ANTHROPIC_API_KEY=...` antes de subir. O banco recebe os dados de demonstração na primeira execução; `docker compose down -v` apaga a base e recomeça.
+Para ligar o assistente de IA, crie um arquivo `.env` na raiz com `ANTHROPIC_API_KEY=...` antes de subir. Também funciona com a OpenAI (`OPENAI_API_KEY=...`, modelo em `OPENAI_MODEL`, padrão `gpt-5-mini`); se as duas chaves existirem, usa a da Anthropic. O banco recebe os dados de demonstração na primeira execução; `docker compose down -v` apaga a base e recomeça.
 
 ## Testes
 

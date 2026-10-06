@@ -50,6 +50,7 @@ api.MapPost("/assistant", async (AssistantRequest request, AssistantService serv
     catch (ArgumentException error) { return Results.Problem(error.Message, statusCode: 400, title: "Pergunta inválida"); }
     catch (AssistantUnavailableException error) { return Results.Problem(error.Message, statusCode: 503, title: "Assistente indisponível"); }
     catch (Anthropic.Exceptions.AnthropicApiException) { return Results.Problem("O assistente não respondeu agora. Tente de novo em instantes.", statusCode: 502, title: "Assistente indisponível"); }
+    catch (System.ClientModel.ClientResultException) { return Results.Problem("O assistente não respondeu agora. Tente de novo em instantes.", statusCode: 502, title: "Assistente indisponível"); }
 });
 api.MapGet("/services", async (DashboardService service, CancellationToken ct) => Results.Ok(await service.GetServices(ct)));
 api.MapGet("/recommendations", async (DashboardService service, CancellationToken ct) => Results.Ok(new RecommendationsDto((await service.GetDashboard(ct)).NextBestAction)));
