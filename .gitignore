@@ -1,0 +1,17 @@
+node_modules/
+.next/
+bin/
+obj/
+.env
+.env.local
+.tools/
+artifacts/
+.DS_Store
+*.log
+*.tsbuildinfo
+playwright-report/
+test-results/
+
+# Anotações internas de agentes
+.superpowers/
+docs/superpowers/

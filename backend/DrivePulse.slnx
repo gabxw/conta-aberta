@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="DrivePulse.Api/DrivePulse.Api.csproj" />
+  <Project Path="DrivePulse.Tests/DrivePulse.Tests.csproj" />
+</Solution>

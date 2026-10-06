@@ -1,0 +1,45 @@
+name: drivepulse
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: drivepulse
+      POSTGRES_USER: drivepulse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-drivepulse_demo_local}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - drivepulse_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U drivepulse -d drivepulse"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+  api:
+    build:
+      context: ./backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DrivePulse: Host=database;Port=5432;Database=drivepulse;Username=drivepulse;Password=${POSTGRES_PASSWORD:-drivepulse_demo_local}
+    ports:
+      - "127.0.0.1:5080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+  web:
+    build:
+      context: ./frontend
+    environment:
+      API_BASE_URL: http://api:8080/api/v1
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+volumes:
+  drivepulse_data:
