@@ -18,6 +18,7 @@ builder.Services.AddScoped<IRecommendationProvider, RuleBasedRecommendationProvi
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<ActionService>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<AssistantService>();
 var app = builder.Build();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
@@ -43,6 +44,13 @@ api.MapPost("/comparison", async (OwnershipInputs inputs, DrivePulseDb db, Cance
     try { return Results.Ok(OwnershipCalculator.Calculate(inputs, (await db.Subscriptions.AsNoTracking().SingleAsync(ct)).MonthlyPrice)); }
     catch (ArgumentException error) { return Results.Problem(error.Message, statusCode: 400, title: "Premissas inválidas"); }
 });
+api.MapPost("/assistant", async (AssistantRequest request, AssistantService service, CancellationToken ct) =>
+{
+    try { return Results.Ok(await service.Ask(request, ct)); }
+    catch (ArgumentException error) { return Results.Problem(error.Message, statusCode: 400, title: "Pergunta inválida"); }
+    catch (AssistantUnavailableException error) { return Results.Problem(error.Message, statusCode: 503, title: "Assistente indisponível"); }
+    catch (Anthropic.Exceptions.AnthropicApiException) { return Results.Problem("O assistente não respondeu agora. Tente de novo em instantes.", statusCode: 502, title: "Assistente indisponível"); }
+});
 api.MapGet("/services", async (DashboardService service, CancellationToken ct) => Results.Ok(await service.GetServices(ct)));
 api.MapGet("/recommendations", async (DashboardService service, CancellationToken ct) => Results.Ok(new RecommendationsDto((await service.GetDashboard(ct)).NextBestAction)));
 api.MapGet("/usage", async (int? months, DashboardService service, CancellationToken ct) =>
@@ -63,7 +71,7 @@ api.MapPost("/actions", async (ActionRequest request, ActionService service, Can
 });
 api.MapPost("/events", async (TrackEventRequest request, DrivePulseDb db, IReferenceClock clock, CancellationToken ct) =>
 {
-    if (request.Name is not ("page_view" or "recommendation_view" or "action_click" or "timeline_filter" or "usage_filter" or "account_view" or "comparison_run" or "contract_view" or "recap_share")
+    if (request.Name is not ("page_view" or "recommendation_view" or "action_click" or "timeline_filter" or "usage_filter" or "account_view" or "comparison_run" or "assistant_ask" or "recap_share")
         || string.IsNullOrWhiteSpace(request.Page) || request.Page.Length > 120 || !request.Page.StartsWith('/')
         || request.Metadata?.Length > 2048)
         return Results.Problem("Informe um evento permitido, uma página válida de até 120 caracteres e metadados de até 2.048 caracteres.", statusCode: 400, title: "Evento inválido");

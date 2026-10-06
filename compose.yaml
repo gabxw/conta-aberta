@@ -23,6 +23,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DrivePulse: Host=database;Port=5432;Database=drivepulse;Username=drivepulse;Password=${POSTGRES_PASSWORD:-drivepulse_demo_local}
+      # Opcional: sem a chave, o app usa só as perguntas guiadas (mesmo motor de cálculo).
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports:
       - "127.0.0.1:5080:8080"
     depends_on:

@@ -4,9 +4,22 @@ public record OwnershipInputs(decimal VehiclePrice, decimal ResaleValue, int Mon
     decimal InterestMonthlyPercent, decimal YieldMonthlyPercent, decimal IpvaPercent, decimal InsuranceAnnual,
     decimal MaintenanceAnnual, decimal TiresTotal, decimal LicensingAnnual)
 {
-    // Explicitly fictional Creta scenario, not a live FIPE quote.
-    public static OwnershipInputs Demo => new(145000, 108000, 24, 20, 1.99m, .8m, 4, 4200, 1800, 1800, 230);
+    // Creta Comfort 1.0 TB 12V Flex Aut. (FIPE 015200-5, out/2026): 0 km e revenda pela FIPE do modelo 2024.
+    // Rendimento = CDI de 13,65% a.a. menos 15% de IR, ao mês. Juros de 26,61% a.a. ao mês.
+    public static OwnershipInputs Demo => new(143276, 107163, 24, 20, 1.99m, .92m, 4, 4200, 1650, 2300, 230);
+
+    public static IReadOnlyList<DataSource> DemoSources =>
+    [
+        new("Preço do carro 0 km", "R$ 143.276", "Tabela FIPE out/2026, Creta Comfort 1.0 TB Aut. (015200-5)", "https://veiculos.fipe.org.br/"),
+        new("Revenda em 2 anos", "R$ 107.163", "Tabela FIPE out/2026, mesmo modelo, ano 2024", "https://veiculos.fipe.org.br/"),
+        new("Rendimento do dinheiro", "0,92% ao mês", "CDI de 13,65% a.a. (Banco Central) menos 15% de IR", "https://www.bcb.gov.br/"),
+        new("Juros do financiamento", "1,99% ao mês", "Média de 26,61% a.a. para veículos (Autoo, set/2026)", null),
+        new("IPVA", "4% ao ano", "SEF/MG, alíquota para automóveis", "https://www.fazenda.mg.gov.br/"),
+        new("Manutenção e pneus", "R$ 1.650/ano e R$ 2.300 por jogo", "Localiza Seminovos, “Manter um Onix é caro?” (nov/2025)", "https://seminovos.localiza.com/blog/posts/quanto-custa-manter-um-onix"),
+        new("Seguro", "R$ 4.200/ano", "Estimativa: cerca de 3% do valor do carro", null),
+    ];
 }
+public record DataSource(string Label, string Value, string Source, string? Url);
 public record OwnershipPart(string Id, string Name, decimal MonthlyValue, string Explanation, string Category);
 public record OwnershipComparison(OwnershipInputs Inputs, decimal SubscriptionMonthly, decimal CashMonthly,
     decimal FinancedMonthly, decimal Installment, decimal DownPayment, decimal CashDifference,
@@ -48,7 +61,7 @@ public static class OwnershipCalculator
             financed - subscriptionMonthly, Round(cash * (decimal)annuity), Round(financed * (decimal)annuity),
             Round(subscriptionMonthly * (decimal)annuity), parts,
             "Custo mensal equivalente: fluxos trazidos a valor presente pelo rendimento líquido e divididos pelo fator de anuidade. Despesas recorrentes são provisões mensais uniformes. A revenda entra somente no fim do período.",
-            "Premissas fictícias editáveis. Mesma duração nas três opções; mensalidade mantida constante na simulação. Combustível, estacionamento, multas e excedentes de km não estão incluídos. Não é cotação nem economia garantida.");
+            "Preços pela FIPE de out/2026 e taxas públicas; seguro é estimativa e a mensalidade é simulada. Mesma duração nas três opções. Combustível, estacionamento, multas e excedentes de km não estão incluídos. Não é cotação nem economia garantida.");
     }
     private static decimal Round(decimal value) => Math.Round(value, 2, MidpointRounding.AwayFromZero);
 }

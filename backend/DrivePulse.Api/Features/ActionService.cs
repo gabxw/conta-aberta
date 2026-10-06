@@ -9,7 +9,7 @@ public sealed class ActionValidationException(string message) : Exception(messag
 
 public sealed class ActionService(DrivePulseDb db, DashboardService dashboard, IReferenceClock clock)
 {
-    private static readonly HashSet<string> Types = ["mileage-plan", "schedule-maintenance", "review-document", "dismiss-recommendation", "contract-interest"];
+    private static readonly HashSet<string> Types = ["mileage-plan", "schedule-maintenance", "review-document", "dismiss-recommendation"];
     public async Task<ActionResponse> Execute(ActionRequest request, CancellationToken ct)
     {
         if (request.Type is null || !Types.Contains(request.Type)) throw new ActionValidationException("Escolha um tipo de ação válido.");
@@ -28,13 +28,7 @@ public sealed class ActionService(DrivePulseDb db, DashboardService dashboard, I
         await db.Database.ExecuteSqlRawAsync("SELECT pg_advisory_xact_lock(20261020)", ct);
         string target;
         Alert? alert = null;
-        if (request.Type == "contract-interest")
-        {
-            if (request.TargetId is not ("renew" or "plan-1000" or "plan-2000" or "buy"))
-                throw new ActionValidationException("Escolha uma opção de contrato válida.");
-            target = request.TargetId;
-        }
-        else if (request.Type == "mileage-plan")
+        if (request.Type == "mileage-plan")
         {
             if (request.TargetId is not null && request.TargetId is not "mileage-plan" and not "mileage-october")
                 throw new ActionValidationException("O plano de uso informado não existe.");
@@ -78,11 +72,6 @@ public sealed class ActionService(DrivePulseDb db, DashboardService dashboard, I
         string title, type, message;
         switch (request.Type)
         {
-            case "contract-interest":
-                title = "Interesse no próximo contrato registrado"; type = "subscription";
-                description = $"Opção: {target}. Registro demonstrativo de interesse; nenhum contrato ou compra foi efetivado.";
-                message = "Interesse salvo na demonstração. Seu contrato atual continua vigente.";
-                break;
             case "schedule-maintenance":
                 title = "Revisão agendada na demonstração"; type = "maintenance";
                 description = $"Agendamento de demonstração registrado para {date:dd/MM/yyyy}. Nenhuma reserva foi enviada a uma oficina.";
