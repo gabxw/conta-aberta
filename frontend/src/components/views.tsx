@@ -1011,6 +1011,7 @@ export function AdminView({
         </article>
         <article className="feature-card">
           <h2>Uso das funcionalidades</h2>
+          <div className="table-scroll">
           <table>
             <thead>
               <tr>
@@ -1039,6 +1040,7 @@ export function AdminView({
               ))}
             </tbody>
           </table>
+          </div>
         </article>
       </section>
       <article className="daily-card">

@@ -11,6 +11,7 @@
 
 /* Todo dia: quanto a assinatura já cobriu no mês */
 .today-card {
+  margin-bottom: 14px;
   background: #fff;
   border-radius: 22px;
   padding: 20px;
@@ -54,6 +55,7 @@
 }
 
 .benefit-card {
+  margin-bottom: 23px;
   display: flex;
   gap: 14px;
   align-items: flex-start;
@@ -350,4 +352,22 @@
   width: 26px;
   border-radius: 999px;
   background: #04662b;
+}
+
+/* Fontes: o valor quebra linha para não espremer o nome da premissa */
+.calculation-sources li {
+  align-items: flex-start;
+}
+.calculation-sources strong {
+  flex: 0 1 40%;
+  white-space: normal;
+}
+.assistant-notice {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #cdeab6;
+  font-size: 13.5px;
+  color: #4d6b57;
 }

@@ -190,7 +190,7 @@ function AssistantBox() {
       </div>
       {pending && <p className="assistant-wait">Fazendo a conta...</p>}
       {error && (
-        <p className="account-error" role="alert">
+        <p className="assistant-notice" role="status">
           {error} As perguntas guiadas acima usam o mesmo motor de cálculo.
         </p>
       )}
