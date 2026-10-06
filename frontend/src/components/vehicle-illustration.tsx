@@ -1,181 +1,100 @@
+// SUV compacto de perfil, em vetor plano. Ilustração genérica, sem marca.
+const wheels = [165, 475];
+
 export function VehicleIllustration() {
   return (
     <svg
       viewBox="0 0 640 310"
       fill="none"
       role="img"
-      aria-label="Ilustracao de um SUV prata"
+      aria-label="Ilustração de um SUV prata de perfil"
       className="vehicle-illustration"
     >
       <defs>
-        <linearGradient
-          id="car-body"
-          x1="190"
-          y1="90"
-          x2="410"
-          y2="258"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stopColor="#f6f8f8" />
-          <stop offset=".38" stopColor="#c7d1d3" />
-          <stop offset=".65" stopColor="#899c9f" />
-          <stop offset="1" stopColor="#e1e8e8" />
+        <linearGradient id="car-body" x1="0" y1="100" x2="0" y2="240" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#f4f7f7" />
+          <stop offset=".45" stopColor="#d9e0e1" />
+          <stop offset="1" stopColor="#a9b6b8" />
         </linearGradient>
-        <linearGradient id="car-glass" x1="268" y1="100" x2="400" y2="159">
-          <stop stopColor="#567579" />
-          <stop offset="1" stopColor="#112f35" />
+        <linearGradient id="car-glass" x1="0" y1="118" x2="0" y2="162" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#3d5459" />
+          <stop offset="1" stopColor="#1b2b2f" />
         </linearGradient>
-        <radialGradient id="car-wheel">
-          <stop stopColor="#8c9da0" />
-          <stop offset=".6" stopColor="#253d42" />
-          <stop offset=".68" stopColor="#718084" />
-          <stop offset=".74" stopColor="#0d2126" />
-          <stop offset="1" stopColor="#11282c" />
+        <radialGradient id="car-shadow" cx=".5" cy=".5" r=".5">
+          <stop stopColor="#0b2a17" stopOpacity=".28" />
+          <stop offset="1" stopColor="#0b2a17" stopOpacity="0" />
         </radialGradient>
-        <filter id="car-shadow">
-          <feGaussianBlur stdDeviation="10" />
-        </filter>
       </defs>
-      <ellipse
-        cx="336"
-        cy="259"
-        rx="227"
-        ry="17"
-        fill="#011c20"
-        opacity=".55"
-        filter="url(#car-shadow)"
-      />
+
+      <ellipse cx="322" cy="279" rx="300" ry="16" fill="url(#car-shadow)" />
+
+      {/* Carroceria */}
       <path
-        d="M101 187L140 150L210 124L251 80Q284 61 354 70L413 85L476 137L546 167Q566 178 572 205L562 233L441 254L159 238L103 217Z"
+        d="M78 238 L70 204 Q66 180 76 168 L98 130 Q106 114 126 112 L370 107 Q392 106 408 117 L462 156 Q470 161 486 163 L548 171 Q574 175 582 192 L587 222 Q588 237 574 238 L532 238 A54 54 0 0 0 424 238 L222 238 A54 54 0 0 0 114 238 Z"
         fill="url(#car-body)"
-        stroke="#d5dfdf"
-        strokeWidth="1.4"
-      />
-      <path
-        d="M260 85L300 79L284 132L218 148Z"
-        fill="url(#car-glass)"
-        stroke="#728d92"
-        strokeWidth="3"
-      />
-      <path
-        d="M310 80Q360 79 408 94L455 136L300 133Z"
-        fill="url(#car-glass)"
-        stroke="#c8d5d6"
-        strokeWidth="4"
-      />
-      <path
-        d="M307 82L301 130M357 84L355 133"
-        stroke="#203d44"
-        strokeWidth="5"
-      />
-      <path d="M214 153L291 140L469 143L548 172L328 185Z" fill="#dce5e5" />
-      <path
-        d="M328 187L549 174L569 197L550 239L337 251L316 231Z"
-        fill="#9aadb0"
-      />
-      <path
-        d="M361 197L551 185L554 218L542 232L355 242L340 220Z"
-        fill="#102a31"
-      />
-      <path
-        d="M356 202L546 189M350 211L549 199M351 221L546 210M357 231L540 222"
-        stroke="#476065"
-        strokeWidth="2"
-      />
-      <path
-        d="M389 195L395 234M420 192L424 233M452 190L454 230M482 189L485 229M512 187L515 225"
-        stroke="#557177"
-        opacity=".45"
-      />
-      <path d="M329 185L372 182L381 190L339 196Z" fill="#e8feff" />
-      <path d="M505 173L549 174L556 181L512 183Z" fill="#e8feff" />
-      <path d="M331 204L348 202L347 224L332 225Z" fill="#d4f4f3" />
-      <path d="M550 195L560 194L555 215L548 217Z" fill="#d4f4f3" />
-      <path d="M361 243L531 234L522 243L374 252Z" fill="#e1e8e9" />
-      <path
-        d="M227 150L211 219M296 146L279 226"
-        stroke="#6a858a"
+        stroke="#8e9c9e"
         strokeWidth="1.5"
       />
+
+      {/* Revestimento plástico inferior e para-lamas */}
+      <path d="M222 238 L424 238 L420 224 L226 224 Z" fill="#2b3436" />
+      <path d="M78 238 L114 238 L112 226 L76 226 Z" fill="#2b3436" />
+      <path d="M532 238 L574 238 Q586 236 587 226 L534 226 Z" fill="#2b3436" />
+      <path d="M106 238 A60 60 0 0 1 226 238" stroke="#2b3436" strokeWidth="11" />
+      <path d="M416 238 A60 60 0 0 1 536 238" stroke="#2b3436" strokeWidth="11" />
+
+      {/* Barras de teto */}
+      <path d="M146 107 L352 103" stroke="#2b3436" strokeWidth="5" strokeLinecap="round" />
+
+      {/* Vidros */}
       <path
-        d="M170 176L182 173M246 166L260 164"
-        stroke="#edf6f6"
-        strokeWidth="3"
-        strokeLinecap="round"
+        d="M110 160 L118 138 Q124 124 140 123 L366 119 Q382 119 394 128 L438 160 Z"
+        fill="url(#car-glass)"
       />
-      <path
-        d="M296 132L284 146L306 152L324 145L314 133Z"
-        fill="#bbcdd0"
-        stroke="#698489"
-      />
-      <path d="M122 188L132 181L134 207L121 211Z" fill="#b63d43" />
-      <path
-        d="M132 233Q120 196 147 185Q179 174 191 210L185 239Z"
-        fill="#1e363a"
-      />
-      <path
-        d="M269 246Q257 202 290 191Q326 183 342 222L335 251Z"
-        fill="#183237"
-      />
-      <ellipse
-        cx="155"
-        cy="221"
-        rx="27"
-        ry="36"
-        transform="rotate(-13 155 221)"
-        fill="url(#car-wheel)"
-      />
-      <ellipse
-        cx="300"
-        cy="232"
-        rx="30"
-        ry="39"
-        transform="rotate(-12 300 232)"
-        fill="url(#car-wheel)"
-      />
-      {[
-        { x: 155, y: 221, r: 20 },
-        { x: 300, y: 232, r: 22 },
-      ].map((w) => (
-        <g key={w.x}>
-          <ellipse cx={w.x} cy={w.y} rx={w.r * 0.72} ry={w.r} fill="#a7b9bc" />
-          {[0, 60, 120, 180, 240, 300].map((a) => (
-            <path
+      <path d="M150 123 L172 123 L184 160 L164 160 Z" fill="#2b3436" />
+      <path d="M270 121 L284 121 L284 160 L270 160 Z" fill="#2b3436" />
+      <path d="M296 124 L360 122 L322 144 L296 145 Z" fill="#fff" opacity=".08" />
+
+      {/* Linha de cintura e vincos */}
+      <path d="M100 162 L452 162" stroke="#9aa8aa" strokeWidth="1.5" />
+      <path d="M90 196 Q330 190 582 200" stroke="#fff" strokeOpacity=".7" strokeWidth="2" />
+
+      {/* Portas e maçanetas */}
+      <path d="M186 162 L186 184" stroke="#8e9c9e" strokeWidth="1.5" />
+      <path d="M284 162 L284 224" stroke="#8e9c9e" strokeWidth="1.5" />
+      <path d="M414 162 L414 210" stroke="#8e9c9e" strokeWidth="1.5" />
+      <rect x="240" y="172" width="26" height="6" rx="3" fill="#8e9c9e" />
+      <rect x="370" y="172" width="26" height="6" rx="3" fill="#8e9c9e" />
+
+      {/* Retrovisor */}
+      <path d="M424 150 Q426 138 440 140 L448 152 Q446 158 436 158 Z" fill="#2b3436" />
+
+      {/* Faróis, grade e lanterna */}
+      <path d="M546 174 Q570 177 580 190 L556 190 Q546 186 546 174 Z" fill="#e9f3f3" stroke="#6f7f82" />
+      <path d="M576 198 L586 198 L587 218 L578 218 Z" fill="#2b3436" />
+      <path d="M72 172 L86 168 L86 186 L68 190 Z" fill="#c8302c" />
+
+      {/* Rodas */}
+      {wheels.map((cx) => (
+        <g key={cx}>
+          <path d={`M${cx - 54} 238 A54 54 0 0 1 ${cx + 54} 238 Z`} fill="#141a1c" />
+          <circle cx={cx} cy="236" r="44" fill="#1f2628" />
+          <circle cx={cx} cy="236" r="29" fill="#c3cccd" stroke="#8e9c9e" strokeWidth="2" />
+          {[0, 72, 144, 216, 288].map((a) => (
+            <rect
               key={a}
-              d={`M${w.x - 3} ${w.y - 4}L${w.x - 8} ${w.y - w.r + 3}L${w.x + 3} ${w.y - w.r + 1}L${w.x + 3} ${w.y - 4}Z`}
-              fill="#304c54"
-              transform={`rotate(${a} ${w.x} ${w.y})`}
+              x={cx - 3.5}
+              y="210"
+              width="7"
+              height="22"
+              rx="3"
+              fill="#7c8a8c"
+              transform={`rotate(${a} ${cx} 236)`}
             />
           ))}
-          <ellipse cx={w.x} cy={w.y} rx="5" ry="7" fill="#dbe7e8" />
+          <circle cx={cx} cy="236" r="8" fill="#5d6a6c" />
         </g>
       ))}
-      <path d="M189 239L259 247L268 237L191 230Z" fill="#253f45" />
-      <path
-        d="M212 76Q296 51 375 71"
-        stroke="#819a9e"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      <rect
-        x="419"
-        y="218"
-        width="71"
-        height="13"
-        rx="2"
-        transform="rotate(-4 419 218)"
-        fill="#e1eeee"
-      />
-      <text
-        x="427"
-        y="227"
-        fill="#28434a"
-        fontSize="7"
-        fontFamily="sans-serif"
-        transform="rotate(-4 427 227)"
-      >
-        DRIVEPULSE
-      </text>
     </svg>
   );
 }
