@@ -502,10 +502,14 @@
   background: #ffffff28;
 }
 .subscriber-app .notification-dot {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 2px solid var(--green);
   background: var(--lime);
-  border-color: var(--green);
-  top: 5px;
-  right: 6px;
 }
 .subscriber-content {
   max-width: 710px;
