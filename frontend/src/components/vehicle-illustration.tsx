@@ -1,5 +1,6 @@
-// SUV compacto de perfil, em vetor plano. Ilustração genérica, sem marca.
-const wheels = [165, 475];
+// SUV compacto de perfil, com as proporções de um Creta (comprimento ≈ 2,65× a altura,
+// entre-eixos ≈ 60% do comprimento). Ilustração genérica, sem marca.
+const wheels = [173, 467];
 
 export function VehicleIllustration() {
   return (
@@ -7,92 +8,94 @@ export function VehicleIllustration() {
       viewBox="0 0 640 310"
       fill="none"
       role="img"
-      aria-label="Ilustração de um SUV prata de perfil"
+      aria-label="Ilustração de um SUV compacto prata de perfil"
       className="vehicle-illustration"
     >
       <defs>
-        <linearGradient id="car-body" x1="0" y1="100" x2="0" y2="240" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#f4f7f7" />
-          <stop offset=".45" stopColor="#d9e0e1" />
-          <stop offset="1" stopColor="#a9b6b8" />
+        <linearGradient id="car-body" x1="0" y1="96" x2="0" y2="254" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#f5f8f8" />
+          <stop offset=".5" stopColor="#d8dfe0" />
+          <stop offset="1" stopColor="#a7b4b6" />
         </linearGradient>
-        <linearGradient id="car-glass" x1="0" y1="118" x2="0" y2="162" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#3d5459" />
-          <stop offset="1" stopColor="#1b2b2f" />
+        <linearGradient id="car-glass" x1="0" y1="104" x2="0" y2="156" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#3f565b" />
+          <stop offset="1" stopColor="#192a2e" />
         </linearGradient>
         <radialGradient id="car-shadow" cx=".5" cy=".5" r=".5">
-          <stop stopColor="#0b2a17" stopOpacity=".28" />
+          <stop stopColor="#0b2a17" stopOpacity=".3" />
           <stop offset="1" stopColor="#0b2a17" stopOpacity="0" />
         </radialGradient>
       </defs>
 
-      <ellipse cx="322" cy="279" rx="300" ry="16" fill="url(#car-shadow)" />
+      <ellipse cx="320" cy="283" rx="275" ry="15" fill="url(#car-shadow)" />
 
       {/* Carroceria */}
       <path
-        d="M78 238 L70 204 Q66 180 76 168 L98 130 Q106 114 126 112 L370 107 Q392 106 408 117 L462 156 Q470 161 486 163 L548 171 Q574 175 582 192 L587 222 Q588 237 574 238 L532 238 A54 54 0 0 0 424 238 L222 238 A54 54 0 0 0 114 238 Z"
+        d="M84 254 L78 244 Q74 234 75 220 L76 178 Q77 160 84 150 L112 120 Q124 104 146 102 L330 96 Q356 95 372 104 L436 152 Q444 158 458 160 L538 168 Q558 171 563 184 L566 228 Q566 250 556 254 L521 254 L521 244 A54 54 0 0 0 413 244 L413 254 L227 254 L227 244 A54 54 0 0 0 119 244 L119 254 Z"
         fill="url(#car-body)"
         stroke="#8e9c9e"
         strokeWidth="1.5"
       />
 
-      {/* Revestimento plástico inferior e para-lamas */}
-      <path d="M222 238 L424 238 L420 224 L226 224 Z" fill="#2b3436" />
-      <path d="M78 238 L114 238 L112 226 L76 226 Z" fill="#2b3436" />
-      <path d="M532 238 L574 238 Q586 236 587 226 L534 226 Z" fill="#2b3436" />
-      <path d="M106 238 A60 60 0 0 1 226 238" stroke="#2b3436" strokeWidth="11" />
-      <path d="M416 238 A60 60 0 0 1 536 238" stroke="#2b3436" strokeWidth="11" />
+      {/* Para-lamas, soleira e para-choques em plástico preto */}
+      <path d="M229 254 L411 254 L410 238 L230 238 Z" fill="#2b3436" />
+      <path d="M84 254 L119 254 L119 238 L76 236 Q76 248 84 254 Z" fill="#2b3436" />
+      <path d="M521 254 L556 254 Q566 250 566 234 L521 236 Z" fill="#2b3436" />
+      <path d="M112 244 A61 61 0 0 1 234 244" stroke="#2b3436" strokeWidth="12" />
+      <path d="M406 244 A61 61 0 0 1 528 244" stroke="#2b3436" strokeWidth="12" />
+      <path d="M78 246 L98 250" stroke="#c3cccd" strokeWidth="4" strokeLinecap="round" />
+      <path d="M540 250 L560 246" stroke="#c3cccd" strokeWidth="4" strokeLinecap="round" />
 
       {/* Barras de teto */}
-      <path d="M146 107 L352 103" stroke="#2b3436" strokeWidth="5" strokeLinecap="round" />
+      <path d="M160 98 L326 92" stroke="#2b3436" strokeWidth="5" strokeLinecap="round" />
 
-      {/* Vidros */}
+      {/* Vidros, coluna B preta e coluna C grossa na cor do carro */}
       <path
-        d="M110 160 L118 138 Q124 124 140 123 L366 119 Q382 119 394 128 L438 160 Z"
+        d="M124 154 L134 128 Q142 113 162 111 L326 105 Q348 104 360 112 L424 154 Z"
         fill="url(#car-glass)"
       />
-      <path d="M150 123 L172 123 L184 160 L164 160 Z" fill="#2b3436" />
-      <path d="M270 121 L284 121 L284 160 L270 160 Z" fill="#2b3436" />
-      <path d="M296 124 L360 122 L322 144 L296 145 Z" fill="#fff" opacity=".08" />
+      <path d="M168 110 L192 109 L203 154 L174 154 Z" fill="url(#car-body)" />
+      <path d="M266 107 L279 107 L279 154 L266 154 Z" fill="#2b3436" />
+      <path d="M292 108 L334 106 L304 132 L292 132 Z" fill="#fff" opacity=".1" />
 
       {/* Linha de cintura e vincos */}
-      <path d="M100 162 L452 162" stroke="#9aa8aa" strokeWidth="1.5" />
-      <path d="M90 196 Q330 190 582 200" stroke="#fff" strokeOpacity=".7" strokeWidth="2" />
+      <path d="M110 155 L432 155" stroke="#97a5a7" strokeWidth="1.5" />
+      <path d="M82 188 Q320 176 562 188" stroke="#fff" strokeOpacity=".75" strokeWidth="2.5" />
+      <path d="M234 222 Q320 218 406 220" stroke="#9aa8aa" strokeWidth="1.5" />
 
       {/* Portas e maçanetas */}
-      <path d="M186 162 L186 184" stroke="#8e9c9e" strokeWidth="1.5" />
-      <path d="M284 162 L284 224" stroke="#8e9c9e" strokeWidth="1.5" />
-      <path d="M414 162 L414 210" stroke="#8e9c9e" strokeWidth="1.5" />
-      <rect x="240" y="172" width="26" height="6" rx="3" fill="#8e9c9e" />
-      <rect x="370" y="172" width="26" height="6" rx="3" fill="#8e9c9e" />
+      <path d="M200 156 L204 192" stroke="#8e9c9e" strokeWidth="1.5" />
+      <path d="M279 156 L279 238" stroke="#8e9c9e" strokeWidth="1.5" />
+      <path d="M406 156 L408 222" stroke="#8e9c9e" strokeWidth="1.5" />
+      <rect x="226" y="166" width="24" height="6" rx="3" fill="#8e9c9e" />
+      <rect x="348" y="165" width="24" height="6" rx="3" fill="#8e9c9e" />
 
       {/* Retrovisor */}
-      <path d="M424 150 Q426 138 440 140 L448 152 Q446 158 436 158 Z" fill="#2b3436" />
+      <path d="M418 146 Q420 134 434 136 L442 148 Q440 154 430 154 Z" fill="#2b3436" />
 
-      {/* Faróis, grade e lanterna */}
-      <path d="M546 174 Q570 177 580 190 L556 190 Q546 186 546 174 Z" fill="#e9f3f3" stroke="#6f7f82" />
-      <path d="M576 198 L586 198 L587 218 L578 218 Z" fill="#2b3436" />
-      <path d="M72 172 L86 168 L86 186 L68 190 Z" fill="#c8302c" />
+      {/* Frente: faixa de LED no topo, farol no para-choque e grade */}
+      <path d="M536 170 Q556 172 562 182 L560 186 Q548 178 534 176 Z" fill="#f2fbfb" stroke="#6f7f82" />
+      <path d="M546 198 L565 196 L565 212 L548 212 Q544 206 546 198 Z" fill="#e3ecec" stroke="#6f7f82" />
+      <path d="M560 216 L566 216 L566 232 L558 232 Z" fill="#2b3436" />
+
+      {/* Traseira: lanterna horizontal */}
+      <path d="M78 160 L104 166 L104 178 L77 176 Z" fill="#c8302c" />
 
       {/* Rodas */}
       {wheels.map((cx) => (
         <g key={cx}>
-          <path d={`M${cx - 54} 238 A54 54 0 0 1 ${cx + 54} 238 Z`} fill="#141a1c" />
-          <circle cx={cx} cy="236" r="44" fill="#1f2628" />
-          <circle cx={cx} cy="236" r="29" fill="#c3cccd" stroke="#8e9c9e" strokeWidth="2" />
+          <path d={`M${cx - 54} 244 A54 54 0 0 1 ${cx + 54} 244 Z`} fill="#141a1c" />
+          <circle cx={cx} cy="240" r="42" fill="#1f2628" />
+          <circle cx={cx} cy="240" r="29" fill="#4b5759" stroke="#8e9c9e" strokeWidth="2" />
           {[0, 72, 144, 216, 288].map((a) => (
-            <rect
+            <path
               key={a}
-              x={cx - 3.5}
-              y="210"
-              width="7"
-              height="22"
-              rx="3"
-              fill="#7c8a8c"
-              transform={`rotate(${a} ${cx} 236)`}
+              d={`M${cx - 6} 213 L${cx + 6} 213 L${cx + 3} 234 L${cx - 3} 234 Z`}
+              fill="#d4dbdc"
+              transform={`rotate(${a} ${cx} 240)`}
             />
           ))}
-          <circle cx={cx} cy="236" r="8" fill="#5d6a6c" />
+          <circle cx={cx} cy="240" r="7" fill="#2b3436" stroke="#c3cccd" strokeWidth="2" />
         </g>
       ))}
     </svg>
