@@ -32,7 +32,10 @@ async function proxy(
       `${base}/${endpoint}${request.nextUrl.search}`,
       {
         method: request.method,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Forwarded-For": request.headers.get("x-forwarded-for") ?? "",
+        },
         body: request.method === "POST" ? await request.text() : undefined,
         cache: "no-store",
         signal: AbortSignal.timeout(endpoint === "assistant" ? 90000 : 15000),

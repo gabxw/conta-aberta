@@ -1,0 +1,34 @@
+# Blueprint do Render: um serviço web (app + API) e um Postgres, ambos no plano gratuito.
+services:
+  - name: conta-aberta
+    type: web
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    healthCheckPath: /api/drivepulse/health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: conta-aberta-db
+          property: connectionString
+      # Pedida na criação do blueprint; nunca vai para o repositório.
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-5-mini
+      - key: ASSISTANT_LIMIT_PER_HOUR
+        value: "10"
+      - key: ASSISTANT_LIMIT_PER_DAY
+        value: "150"
+
+databases:
+  - name: conta-aberta-db
+    plan: free
+    region: oregon
+    postgresMajorVersion: "17"
+    databaseName: drivepulse
+    user: drivepulse

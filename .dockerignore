@@ -1,0 +1,12 @@
+.git
+.env*
+!.env.example
+docs
+scripts
+**/node_modules
+**/.next
+**/*.tsbuildinfo
+**/bin/
+**/obj/
+backend/DrivePulse.Tests/
+frontend/tests/

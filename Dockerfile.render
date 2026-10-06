@@ -1,0 +1,36 @@
+# Imagem única para o Render: API .NET e app Next.js no mesmo serviço.
+# No plano gratuito um serviço não recebe tráfego de outro pela rede interna,
+# então o app chama a API em 127.0.0.1 dentro do próprio container.
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS api
+WORKDIR /src
+COPY backend/NuGet.Config ./
+COPY backend/DrivePulse.Api/DrivePulse.Api.csproj DrivePulse.Api/
+RUN dotnet restore DrivePulse.Api/DrivePulse.Api.csproj
+COPY backend/DrivePulse.Api/ DrivePulse.Api/
+RUN dotnet publish DrivePulse.Api/DrivePulse.Api.csproj -c Release -o /out --no-restore
+
+FROM node:22-bookworm-slim AS web
+WORKDIR /app
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend/ ./
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+FROM node:22-bookworm-slim AS node
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+WORKDIR /app
+COPY --from=api /out ./api
+COPY --from=web /app/.next/standalone ./web
+COPY --from=web /app/.next/static ./web/.next/static
+COPY --from=web /app/public ./web/public
+COPY render-start.sh ./
+ENV ASPNETCORE_URLS=http://127.0.0.1:8080 \
+    API_BASE_URL=http://127.0.0.1:8080/api/v1 \
+    NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=10000
+EXPOSE 10000
+USER app
+CMD ["sh", "/app/render-start.sh"]

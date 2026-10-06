@@ -90,6 +90,10 @@ docker compose up --build -d
 
 Para ligar o assistente de IA, crie um arquivo `.env` na raiz com `ANTHROPIC_API_KEY=...` antes de subir. Também funciona com a OpenAI (`OPENAI_API_KEY=...`, modelo em `OPENAI_MODEL`, padrão `gpt-5-mini`); se as duas chaves existirem, usa a da Anthropic. O banco recebe os dados de demonstração na primeira execução; `docker compose down -v` apaga a base e recomeça.
 
+### Publicar no Render
+
+O `render.yaml` cria, no plano gratuito, um serviço com o app e a API na mesma imagem (`Dockerfile.render`) e um Postgres. Em [render.com/deploy](https://render.com/deploy?repo=https://github.com/gabxw/conta-aberta), o Render pede a `OPENAI_API_KEY` (opcional). O assistente tem limite de perguntas por pessoa por hora e por dia (`ASSISTANT_LIMIT_PER_HOUR`, `ASSISTANT_LIMIT_PER_DAY`). No plano gratuito o serviço dorme após 15 minutos sem acesso e o primeiro acesso leva cerca de um minuto.
+
 ## Testes
 
 ```bash

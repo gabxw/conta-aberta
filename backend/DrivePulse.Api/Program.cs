@@ -1,6 +1,7 @@
 using DrivePulse.Api.Data;
 using DrivePulse.Api.Domain;
 using DrivePulse.Api.Features;
+using System.Threading.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,9 @@ builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.P
 builder.WebHost.ConfigureKestrel(options => options.Limits.MaxRequestBodySize = 16 * 1024);
 var connection = builder.Configuration.GetConnectionString("DrivePulse")
     ?? "Host=127.0.0.1;Port=5433;Database=drivepulse;Username=drivepulse;Password=drivepulse_demo_local";
+// No Render, o banco chega como URL (postgresql://usuario:senha@host/banco).
+if (builder.Configuration["DATABASE_URL"] is { Length: > 0 } databaseUrl)
+    connection = FromDatabaseUrl(databaseUrl);
 builder.Services.AddDbContext<DrivePulseDb>(options => options.UseNpgsql(connection));
 builder.Services.AddSingleton<IReferenceClock, DemoClock>();
 builder.Services.AddScoped<IRecommendationProvider, RuleBasedRecommendationProvider>();
@@ -19,9 +23,20 @@ builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<ActionService>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<AssistantService>();
+// Limites do assistente no link público: por pessoa (IP) por hora e total por dia, para a chave não ser gasta à toa.
+var perHour = builder.Configuration.GetValue("ASSISTANT_LIMIT_PER_HOUR", 10);
+var dailyLimit = new FixedWindowRateLimiter(new() { PermitLimit = builder.Configuration.GetValue("ASSISTANT_LIMIT_PER_DAY", 150), Window = TimeSpan.FromDays(1) });
+const string LimitMessage = "Você atingiu o limite de perguntas ao assistente nesta demonstração. As perguntas guiadas continuam funcionando.";
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("assistente", context => RateLimitPartition.GetFixedWindowLimiter(ClientKey(context),
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = perHour, Window = TimeSpan.FromHours(1) }));
+    options.OnRejected = (context, _) => new ValueTask(Results.Problem(LimitMessage, statusCode: 429, title: "Limite do assistente").ExecuteAsync(context.HttpContext));
+});
 var app = builder.Build();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+app.UseRateLimiter();
 app.MapOpenApi();
 await using (var scope = app.Services.CreateAsyncScope())
     await DemoSeed.Initialize(scope.ServiceProvider.GetRequiredService<DrivePulseDb>());
@@ -46,12 +61,14 @@ api.MapPost("/comparison", async (OwnershipInputs inputs, DrivePulseDb db, Cance
 });
 api.MapPost("/assistant", async (AssistantRequest request, AssistantService service, CancellationToken ct) =>
 {
+    using var lease = dailyLimit.AttemptAcquire();
+    if (!lease.IsAcquired) return Results.Problem(LimitMessage, statusCode: 429, title: "Limite do assistente");
     try { return Results.Ok(await service.Ask(request, ct)); }
     catch (ArgumentException error) { return Results.Problem(error.Message, statusCode: 400, title: "Pergunta inválida"); }
     catch (AssistantUnavailableException error) { return Results.Problem(error.Message, statusCode: 503, title: "Assistente indisponível"); }
     catch (Anthropic.Exceptions.AnthropicApiException) { return Results.Problem("O assistente não respondeu agora. Tente de novo em instantes.", statusCode: 502, title: "Assistente indisponível"); }
     catch (System.ClientModel.ClientResultException) { return Results.Problem("O assistente não respondeu agora. Tente de novo em instantes.", statusCode: 502, title: "Assistente indisponível"); }
-});
+}).RequireRateLimiting("assistente");
 api.MapGet("/services", async (DashboardService service, CancellationToken ct) => Results.Ok(await service.GetServices(ct)));
 api.MapGet("/recommendations", async (DashboardService service, CancellationToken ct) => Results.Ok(new RecommendationsDto((await service.GetDashboard(ct)).NextBestAction)));
 api.MapGet("/usage", async (int? months, DashboardService service, CancellationToken ct) =>
@@ -82,5 +99,25 @@ api.MapPost("/events", async (TrackEventRequest request, DrivePulseDb db, IRefer
 });
 api.MapGet("/admin/overview", async (DashboardService service, CancellationToken ct) => Results.Ok(await service.GetAdmin(ct)));
 app.Run();
+
+// O proxy do Next repassa o IP de quem acessa; sem ele, usa o IP da conexão.
+static string ClientKey(HttpContext context) =>
+    context.Request.Headers["X-Forwarded-For"].ToString().Split(',')[0].Trim() is { Length: > 0 } ip
+        ? ip
+        : context.Connection.RemoteIpAddress?.ToString() ?? "desconhecido";
+
+static string FromDatabaseUrl(string url)
+{
+    var uri = new Uri(url);
+    var user = uri.UserInfo.Split(':', 2);
+    return new Npgsql.NpgsqlConnectionStringBuilder
+    {
+        Host = uri.Host,
+        Port = uri.Port > 0 ? uri.Port : 5432,
+        Database = uri.AbsolutePath.TrimStart('/'),
+        Username = Uri.UnescapeDataString(user[0]),
+        Password = user.Length > 1 ? Uri.UnescapeDataString(user[1]) : null,
+    }.ConnectionString;
+}
 
 public partial class Program { }
