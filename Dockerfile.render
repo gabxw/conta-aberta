@@ -26,7 +26,6 @@ WORKDIR /app
 COPY --from=api /out ./api
 COPY --from=web /app/.next/standalone ./web
 COPY --from=web /app/.next/static ./web/.next/static
-COPY --from=web /app/public ./web/public
 COPY render-start.sh ./
 ENV ASPNETCORE_URLS=http://127.0.0.1:8080 \
     API_BASE_URL=http://127.0.0.1:8080/api/v1 \
