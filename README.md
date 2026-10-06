@@ -2,6 +2,8 @@
 
 Conceito para o app de carro por assinatura, criado a partir do case da Localiza Assinatura no **Ruptura 2026**, o hackathon da UFMG no Localiza Labs. Depois do evento, continuei o projeto e transformei o protótipo do pitch em um app que funciona de ponta a ponta.
 
+**Testar online:** [conta-aberta.onrender.com](https://conta-aberta.onrender.com) (plano gratuito: o primeiro acesso pode levar cerca de um minuto).
+
 > Projeto independente de portfólio, sem vínculo oficial com a Localiza. Os preços vêm da FIPE e de fontes públicas; o cliente e o histórico de uso são de demonstração.
 
 ![Tela inicial](docs/assets/inicio.png)
