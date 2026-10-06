@@ -1,37 +1,49 @@
-# Architecture and product decisions
+# Arquitetura e decisões
 
-DrivePulse is a modular monolith: one REST API, one database, one web application. The browser calls the same-origin Next proxy; the proxy forwards to ASP.NET. Business rules and persistence live in the API. The UI consumes typed DTOs and does not reimplement recommendation logic.
+Monólito modular: uma API REST, um banco e um app web. O navegador chama um proxy de mesma origem no Next.js, que repassa para a API em ASP.NET. Regras de negócio e persistência ficam na API; a interface consome os DTOs e não refaz cálculo.
 
 ```mermaid
 flowchart LR
-    Browser[Next.js interface] --> Proxy[Next API proxy]
-    Proxy --> API[.NET 10 Web API]
-    API --> Rules[IRecommendationProvider: deterministic rules]
+    Browser[App Next.js] --> Proxy[Proxy /api/drivepulse]
+    Proxy --> API[API .NET 10]
+    API --> Rules[Regras determinísticas]
+    API --> Assistant[Assistente: Claude com tool use]
+    Assistant -->|simular_custos| Rules
     API --> DB[(PostgreSQL / EF Core)]
 ```
 
-## Domain
+## Domínio
 
-Customer owns a subscription and its vehicle. Daily usage captures distance and trips; immutable service usages record reference values for included services actually used. Vehicle events form the timeline. Alerts describe pending care. Completed actions and product events are persisted independently: an action is business behavior, while an event is a product interaction.
+O cliente tem uma assinatura e um carro. O uso diário guarda distância e viagens; os serviços usados guardam um valor de referência. Os acontecimentos do carro formam a linha do tempo, e os alertas descrevem cuidados pendentes. Ações concluídas e eventos de produto são persistidos separadamente: a ação é comportamento de negócio, o evento é interação com a interface.
 
-Money uses decimal in the API. Dates use ISO strings at the boundary. Performed service reference prices are illustrative. AccountService separates these from included coverage and estimated ownership costs. OwnershipCalculator adds an explicit hypothetical cost-of-ownership comparison with editable assumptions; it is not a live quote. No real vehicle telemetry or integrations are implied.
+Valores em dinheiro usam `decimal`. A data de referência é fixa (20/10/2026), para que qualquer pessoa veja os mesmos números em qualquer dia.
 
-## Conta Aberta and decision support
+## Conta Aberta
 
-The subscriber journey follows the user's original case prototype: monthly statement, explained comparison, next-contract options and shareable recap. GET /account derives its DTO from the existing PostgreSQL entities. POST /comparison calculates ownership using price, down payment, installments, monthly operating provisions, discount yield and end-period resale. The engine returns signed differences, so a cheaper ownership scenario is displayed honestly. No services are double-counted as savings.
+`GET /account` monta, a partir das entidades do banco:
 
-The fixed reference is October 20; the latest closed statement is September. Recap spans the actual subscription period through the reference date. Coverage availability is excluded from performed services: three records sum to R$1,150. Guided questions use deterministic calculations, with no LLM or free-text chatbot.
+- **o extrato do mês fechado**, separando o que foi feito, o que está incluído no contrato e o que é estimativa;
+- **o valor coberto no dia**: o custo mensal equivalente de ter o carro, dividido pelos dias do mês e acumulado até hoje;
+- **o benefício contextual** do dia (demonstrativo);
+- **a retrospectiva** do ciclo: km rodados, equivalências (volta ao mundo, distância até a Lua), destino favorito e quanto a diferença entre o valor coberto e o pago daria para custear.
 
-Contract planning retains the actual March 2028 end date. The three completed months average 1,425 km, so the 1,000-km option is not recommended. Interest confirmation uses existing CompletedAction persistence and advisory locking, with no schema expansion or actual contract change. Product events track statement views, comparisons, contract options and recap shares; improved retention/NPS remains an unvalidated hypothesis.
+`OwnershipCalculator` compara comprar à vista, financiar e assinar no mesmo período. Os fluxos são trazidos a valor presente pelo rendimento líquido do dinheiro e convertidos em custo mensal equivalente; a revenda entra no fim. As premissas padrão vêm da FIPE e de fontes públicas (`OwnershipInputs.DemoSources`). O resultado é assinado: se comprar sair mais barato, o app mostra.
 
-## Mileage anticipation
+## Assistente
 
-The scenario is intentionally frozen on October 20, 2026, allowing a reviewer to see the same story on any date. 1,180.65 km / 20 elapsed days × 31 days = 1,830 km projected. The 330 km excess would cost R$247.50 at the illustrative contract rate of R$0.75/km. This is a simple pace estimate, not a statistical prediction. The API returns the remaining safe daily budget and selects a useful next action.
+`POST /assistant` recebe uma pergunta livre. O Claude recebe uma única ferramenta, `simular_custos`, que chama o `OwnershipCalculator` com as premissas do contrato e só altera o que o cliente mencionou. O prompt proíbe citar valores que não venham da ferramenta, e cada resposta devolve a lista de cálculos feitos, que o app mostra ao cliente.
 
-## Future recommendation agent
+Decisões:
 
-The application depends on IRecommendationProvider. The current implementation uses explicit priority rules and explainable reasons. A later provider can use an agent while keeping the same DTO and user-action workflow. It must retain deterministic safety checks, structured output, traceable reasons, bounded external calls and explicit user confirmation of vehicle-service actions. No agent SDK, OpenAI library or API key exists in this MVP.
+- **o número vem da regra, a explicação vem do modelo**: a conta é auditável sem a IA;
+- **sem ações pelo assistente**: renovar, trocar ou contratar ficam no app, com confirmação;
+- **chamadas inválidas viram erro para o modelo**, nunca um número inventado (testado em `ContaAbertaTests`);
+- **sem chave configurada, o endpoint responde 503** e o app usa as perguntas guiadas, que chamam o mesmo motor.
 
-## Scope
+## Quilometragem
 
-This is a local fictional demonstration. It deliberately does not have production authentication, billing, real appointment availability, multi-tenant authorization or vehicle integrations. Demonstrated appointment/document actions persist in the demo system; they do not contact a service center. The admin area reports tracked demo interactions and completed actions, not business-wide analytics. Production exposure requires a separate authentication and privacy design.
+1.180,65 km em 20 dias × 31 dias = 1.830 km projetados, 330 km acima da franquia, ou R$ 247,50 à tarifa de demonstração de R$ 0,75/km. É uma estimativa de ritmo, não uma previsão estatística. A API devolve também o km diário seguro para o resto do mês.
+
+## Fora do escopo
+
+Demonstração com um cliente: sem autenticação, cobrança, agenda real de oficinas, autorização por cliente ou integração com o carro conectado. O banco é criado com `EnsureCreated`; para produção, entrariam migrações versionadas, login e um desenho de privacidade para dados de localização.

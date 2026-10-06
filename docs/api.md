@@ -5,8 +5,9 @@ Prefixo: `/api/v1`. JSON em camelCase, datas ISO, valores monetários decimais e
 | Método | Recurso | Comportamento |
 | --- | --- | --- |
 | GET | `/dashboard` | Cliente, veículo, contrato, quilometragem, alertas, próxima ação, serviços e timeline |
-| GET | `/account` | Extrato do mês fechado, realizado/incluído/estimado, comparação, opções por uso, interesses salvos e retrospectiva |
+| GET | `/account` | Extrato do mês fechado (feito/incluído/estimado), comparação com fontes, valor coberto no dia, benefício contextual e retrospectiva |
 | POST | `/comparison` | Recalcula compra à vista/financiada versus mensalidade do contrato com premissas validadas |
+| POST | `/assistant` | Pergunta livre ao assistente de IA; o modelo chama o motor de cálculo como ferramenta. 503 quando `ANTHROPIC_API_KEY` não está configurada |
 | GET | `/usage?months=6` | Meses e registros diários; período permitido de 1 a 12 meses |
 | GET | `/timeline?type=all` | Histórico filtrado; tipos all, maintenance, mileage, document, assistance, subscription, recommendation |
 | GET | `/services` | Serviços utilizados e valor de referência agregado |
@@ -26,7 +27,7 @@ Prefixo: `/api/v1`. JSON em camelCase, datas ISO, valores monetários decimais e
 }
 ```
 
-Tipos: `schedule-maintenance`, `review-document`, `mileage-plan`, `dismiss-recommendation`, `contract-interest`. Interesse contratual aceita os alvos `renew`, `plan-1000`, `plan-2000` e `buy`; registra uma preferência, sem alterar o contrato. A data é exigida somente para manutenção e deve ser igual ou posterior à referência demonstrativa. Para o plano de uso, os identificadores `mileage-plan` e `mileage-october` são normalizados para a mesma ação. Repetir uma ação retorna o mesmo `eventId`, sem duplicar o registro.
+Tipos: `schedule-maintenance`, `review-document`, `mileage-plan`, `dismiss-recommendation`. A data é exigida somente para manutenção e deve ser igual ou posterior à referência demonstrativa. Para o plano de uso, os identificadores `mileage-plan` e `mileage-october` são normalizados para a mesma ação. Repetir uma ação retorna o mesmo `eventId`, sem duplicar o registro.
 
 ```json
 {
@@ -47,7 +48,7 @@ A API serializa as alterações do cliente demonstrativo dentro de uma transaç�
 }
 ```
 
-Eventos públicos permitidos: `page_view`, `recommendation_view`, `action_click`, `timeline_filter`, `usage_filter`, `account_view`, `comparison_run`, `contract_view`, `recap_share`. Página é um caminho de até 120 caracteres; metadados têm limite de 2.048 caracteres. O servidor registra também `action_completed` e `recommendation_dismissed` quando uma ação realmente ocorre.
+Eventos públicos permitidos: `page_view`, `recommendation_view`, `action_click`, `timeline_filter`, `usage_filter`, `account_view`, `comparison_run`, `assistant_ask`, `recap_share`. Página é um caminho de até 120 caracteres; metadados têm limite de 2.048 caracteres. O servidor registra também `action_completed` e `recommendation_dismissed` quando uma ação realmente ocorre.
 
 ## Comparação
 
