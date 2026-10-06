@@ -235,9 +235,10 @@ export function InfoDialog({ onClose }: { onClose: () => void }) {
         <span className="eyebrow">CONTE COM A GENTE</span>
         <h2 id="help-title">Sua assinatura, mais simples.</h2>
         <p>
-          Este é o conceito DrivePulse, inspirado no app Localiza Assinatura. É
-          um projeto independente, sem vínculo oficial. Os dados são fictícios e
-          os cuidados registrados pertencem apenas à demonstração.
+          Este é o conceito Conta Aberta, criado a partir do case da Localiza
+          Assinatura no Ruptura 2026. É um projeto independente, sem vínculo
+          oficial. Os preços seguem a FIPE; o cliente e os registros são de
+          demonstração.
         </p>
         <div className="document-preview">
           <ShieldCheck size={22} />

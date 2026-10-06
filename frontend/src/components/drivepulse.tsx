@@ -18,7 +18,7 @@ import {
   CircleHelp,
   Wrench,
 } from "lucide-react";
-import { LocalizaBrand } from "./localiza-brand";
+import { AppBrand } from "./app-brand";
 import { requestApi, track } from "@/lib/api";
 import { date } from "@/lib/format";
 import type {
@@ -169,7 +169,7 @@ export function DrivePulse({ page }: { page: Page }) {
     setAction(selected);
   }
   return (
-    <div className="app-shell localiza-theme">
+    <div className="app-shell app-theme">
       <a className="skip-link" href="#main">
         Pular para o conteúdo
       </a>
@@ -179,7 +179,7 @@ export function DrivePulse({ page }: { page: Page }) {
           className="brand"
           aria-label="Localiza Assinatura — conceito DrivePulse, início"
         >
-          <LocalizaBrand />
+          <AppBrand />
         </Link>
         <div className="workspace-label">DRIVEPULSE · CONCEITO DE EVOLUÇÃO</div>
         <nav aria-label="Navegação principal">
@@ -236,7 +236,7 @@ export function DrivePulse({ page }: { page: Page }) {
             className="mobile-brand"
             aria-label="Localiza Assinatura — conceito DrivePulse, início"
           >
-            <LocalizaBrand />
+            <AppBrand />
           </Link>
           <div className="breadcrumb">
             Minha assinatura

@@ -12,12 +12,20 @@ import {
   Signal,
   Wifi,
 } from "lucide-react";
-import { LocalizaBrand } from "./localiza-brand";
+import { AppBrand } from "./app-brand";
 import type { Account } from "@/lib/account-types";
 import { requestApi } from "@/lib/api";
 import { money } from "@/lib/format";
 
 const steps = [
+  {
+    title: "Todo dia, um motivo para abrir",
+    label: "Hoje",
+    path: "/",
+    pain: "O app só é aberto quando aparece um problema para resolver.",
+    solution:
+      "A tela inicial mostra quanto a assinatura já cobriu no mês e o benefício do clube que serve para onde o cliente está.",
+  },
   {
     title: "O resumo do mês chega",
     label: "Notificação",
@@ -48,15 +56,7 @@ const steps = [
     path: "/vale-a-pena?premissas=1",
     pain: "Um número sem premissas não ajuda o cliente a confiar.",
     solution:
-      "Ele pode mudar preço, revenda e taxas. O resultado também mostra quando comprar fica mais barato. Nenhuma resposta é gerada por IA.",
-  },
-  {
-    title: "O próximo contrato começa pelo uso",
-    label: "Próximo contrato",
-    path: "/fim-contrato",
-    pain: "No fim do contrato, ele precisa decidir sem enxergar seus caminhos.",
-    solution:
-      "Renovar, ajustar a franquia ou pedir proposta de compra no mesmo app. A sugestão considera o histórico; o interesse fica salvo após confirmação.",
+      "Ele pode mudar preço, revenda e taxas, ou perguntar ao assistente de IA. O modelo interpreta a dúvida e chama o motor de cálculo: nenhum número vem do modelo.",
   },
   {
     title: "O valor recebido vira história",
@@ -64,12 +64,12 @@ const steps = [
     path: "/retrospectiva",
     pain: "É difícil recomendar uma assinatura cujo valor não ficou claro.",
     solution:
-      "Uma retrospectiva do período, pronta para compartilhar. Ela mostra cuidados registrados e identifica os valores de referência.",
+      "No fim do ciclo, uma retrospectiva no estilo das que as pessoas compartilham: km rodados, destino favorito e o valor que a assinatura cuidou.",
   },
 ];
 export function CasePresentation() {
   const [step, setStep] = useState(0),
-    [frameUrl, setFrameUrl] = useState("/conta-aberta"),
+    [frameUrl, setFrameUrl] = useState("/"),
     [frameKey, setFrameKey] = useState(0);
   const [account, setAccount] = useState<Account | null>(null),
     [error, setError] = useState("");
@@ -123,7 +123,7 @@ export function CasePresentation() {
       </header>
       <section className="case-presentation-layout">
         <div className="case-presentation-story">
-          <LocalizaBrand />
+          <AppBrand />
           <span className="case-kicker">CONTA ABERTA</span>
           <h1>
             Valeu a pena?
@@ -198,13 +198,13 @@ export function CasePresentation() {
                   <BatteryFull size={19} />
                 </div>
               </div>
-              {step === 0 ? (
+              {active.path === "" ? (
                 <div className="case-lockscreen">
                   <p className="case-clock">08:12</p>
                   <p>Quinta-feira, 1 de outubro</p>
-                  <button className="case-push" onClick={() => show(1)}>
+                  <button className="case-push" onClick={() => show(step + 1)}>
                     <span>
-                      <Bell size={17} /> LOCALIZA ASSINATURA{" "}
+                      <Bell size={17} /> CONTA ABERTA{" "}
                       <small>agora</small>
                     </span>
                     <strong>
@@ -235,14 +235,14 @@ export function CasePresentation() {
             </div>
           </div>
           <span className="case-device-caption">
-            {step === 0
+            {active.path === ""
               ? "Toque na notificação para começar"
               : "Aplicativo real do protótipo · interaja com a tela"}
           </span>
           <p className="case-data-note">
             {error ||
               (account
-                ? `Cenário: Marina · Creta · mensalidade ${money(account.dashboard.subscription.monthlyPrice)}. Dados fictícios.`
+                ? `Cenário: Marina · Creta · mensalidade ${money(account.dashboard.subscription.monthlyPrice)}. Preços pela FIPE de out/2026; cliente de demonstração.`
                 : "Carregando cenário da demonstração...")}
           </p>
         </div>

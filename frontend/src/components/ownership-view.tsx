@@ -9,9 +9,16 @@ import {
   CircleHelp,
   Info,
   LoaderCircle,
+  Send,
   SlidersHorizontal,
+  Sparkles,
 } from "lucide-react";
-import type { Account, Comparison, OwnershipInputs } from "@/lib/account-types";
+import type {
+  Account,
+  AssistantAnswer,
+  Comparison,
+  OwnershipInputs,
+} from "@/lib/account-types";
 import { money, number } from "@/lib/format";
 import { requestApi, track } from "@/lib/api";
 
@@ -112,6 +119,106 @@ const fields: {
     unit: "R$/ano",
   },
 ];
+const sugestoes = [
+  "E se eu tivesse financiado com 40% de entrada?",
+  "E se a revenda fosse R$ 115 mil?",
+  "Comprar à vista compensaria em 36 meses?",
+];
+
+// Pergunta livre ao agente: o modelo interpreta e explica; a conta vem do motor de cálculo da API.
+function AssistantBox() {
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState<AssistantAnswer | null>(null);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
+  async function ask(q: string) {
+    if (!q.trim()) return;
+    setQuestion(q);
+    setPending(true);
+    setError("");
+    setAnswer(null);
+    track("assistant_ask", "/vale-a-pena");
+    try {
+      setAnswer(
+        await requestApi<AssistantAnswer>("/assistant", {
+          method: "POST",
+          body: JSON.stringify({ question: q }),
+        }),
+      );
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : "O assistente não respondeu agora.",
+      );
+    } finally {
+      setPending(false);
+    }
+  }
+  return (
+    <section className="assistant-box" aria-labelledby="assistant-title">
+      <span className="account-eyebrow">
+        <Sparkles size={15} /> PERGUNTE DO SEU JEITO
+      </span>
+      <h2 id="assistant-title">Tire a dúvida com o assistente</h2>
+      <p>
+        A IA entende a pergunta e chama o motor de cálculo. Todo número da
+        resposta vem da conta, não do modelo.
+      </p>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void ask(question);
+        }}
+      >
+        <input
+          value={question}
+          maxLength={500}
+          placeholder="Ex.: e se eu rodasse mais e vendesse por menos?"
+          aria-label="Sua pergunta"
+          onChange={(e) => setQuestion(e.target.value)}
+        />
+        <button className="account-button" disabled={pending || !question.trim()}>
+          {pending ? <LoaderCircle className="spin" size={17} /> : <Send size={17} />}
+          <span className="sr-only">Perguntar</span>
+        </button>
+      </form>
+      <div className="assistant-suggestions">
+        {sugestoes.map((s) => (
+          <button key={s} disabled={pending} onClick={() => void ask(s)}>
+            {s}
+          </button>
+        ))}
+      </div>
+      {pending && <p className="assistant-wait">Fazendo a conta...</p>}
+      {error && (
+        <p className="account-error" role="alert">
+          {error} As perguntas guiadas acima usam o mesmo motor de cálculo.
+        </p>
+      )}
+      {answer && (
+        <div className="assistant-answer" aria-live="polite">
+          <p>{answer.answer}</p>
+          {answer.calculations.length > 0 && (
+            <details>
+              <summary>
+                <Calculator size={15} /> {answer.calculations.length}{" "}
+                {answer.calculations.length === 1 ? "cálculo feito" : "cálculos feitos"} pelo
+                motor
+              </summary>
+              <ul>
+                {answer.calculations.map((c, i) => (
+                  <li key={i}>
+                    <code>{c.name}({c.input})</code>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function OwnershipView({ account }: { account: Account }) {
   const [comparison, setComparison] = useState<Comparison>(account.comparison);
   const [inputs, setInputs] = useState(account.comparison.inputs);
@@ -214,7 +321,7 @@ export function OwnershipView({ account }: { account: Account }) {
             <p>
               {account.dashboard.vehicle.brand}{" "}
               {account.dashboard.vehicle.model} · {comparison.inputs.months}{" "}
-              meses · cenário fictício
+              meses · preços FIPE out/2026
             </p>
           </div>
         </div>
@@ -318,8 +425,9 @@ export function OwnershipView({ account }: { account: Account }) {
           <div>
             <h2>Abra a conta. Ajuste o cenário.</h2>
             <p>
-              Valores fictícios para demonstração. A mensalidade da assinatura
-              vem do contrato e fica em {money(comparison.subscriptionMonthly)}.
+              Os valores iniciais vêm da FIPE e de taxas públicas. A
+              mensalidade da assinatura, simulada, fica em{" "}
+              {money(comparison.subscriptionMonthly)}.
             </p>
           </div>
           <div className="assumptions-grid">
@@ -366,6 +474,7 @@ export function OwnershipView({ account }: { account: Account }) {
           </button>
         </form>
       )}
+      <AssistantBox />
       <details className="calculation-details">
         <summary>
           <CircleHelp size={18} /> De onde vem esse número?
@@ -386,6 +495,26 @@ export function OwnershipView({ account }: { account: Account }) {
             </li>
           </ul>
           <p>{comparison.method}</p>
+          <h3>De onde vêm as premissas</h3>
+          <ul className="calculation-sources">
+            {account.sources.map((s) => (
+              <li key={s.label}>
+                <span>
+                  {s.label}
+                  <small>
+                    {s.url ? (
+                      <a href={s.url} target="_blank" rel="noreferrer">
+                        {s.source}
+                      </a>
+                    ) : (
+                      s.source
+                    )}
+                  </small>
+                </span>
+                <strong>{s.value}</strong>
+              </li>
+            ))}
+          </ul>
           <h3>Os fluxos a valor presente</h3>
           <ul>
             <li>
@@ -410,13 +539,6 @@ export function OwnershipView({ account }: { account: Account }) {
         </div>
       </details>
       <p className="section-footnote">{comparison.scope}</p>
-      <Link className="subscriber-link-card" href="/fim-contrato">
-        <div>
-          <h2>Agora, qual é o próximo passo?</h2>
-          <p>Compare renovar, mudar o plano ou ficar com o carro.</p>
-        </div>
-        <ArrowRight size={20} />
-      </Link>
     </div>
   );
 }

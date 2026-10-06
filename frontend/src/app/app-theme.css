@@ -12,7 +12,7 @@
 body {
   font-size: 15px;
 }
-.localiza-brand {
+.app-brand {
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -20,16 +20,16 @@ body {
   font-family: Manrope, sans-serif;
   letter-spacing: -0.8px;
 }
-.localiza-brand > span {
+.app-brand > span {
   display: flex;
   flex-direction: column;
 }
-.localiza-brand strong {
+.app-brand strong {
   font-size: 24px;
   line-height: 1.03;
   font-weight: 750;
 }
-.localiza-brand-light {
+.app-brand-light {
   color: white;
 }
 .sidebar {
@@ -839,7 +839,7 @@ h1 {
     padding-left: 16px;
     padding-right: 16px;
   }
-  .localiza-brand strong {
+  .app-brand strong {
     font-size: 22px;
   }
   .main-wrap {
@@ -896,14 +896,14 @@ h1 {
     display: flex;
     margin: 0;
   }
-  .mobile-brand .localiza-brand {
+  .mobile-brand .app-brand {
     gap: 7px;
   }
-  .mobile-brand .localiza-brand strong {
+  .mobile-brand .app-brand strong {
     font-size: 19px;
     letter-spacing: -0.5px;
   }
-  .mobile-brand .localiza-brand svg {
+  .mobile-brand .app-brand svg {
     width: 24px;
     height: 33px;
   }
@@ -1176,10 +1176,10 @@ h1 {
   align-items: center;
   gap: 70px;
 }
-.presentation-story > .localiza-brand {
+.presentation-story > .app-brand {
   margin-bottom: 38px;
 }
-.presentation-story > .localiza-brand strong {
+.presentation-story > .app-brand strong {
   font-size: 26px;
 }
 .concept-label {
@@ -1402,7 +1402,7 @@ h1 {
     max-width: 440px;
     margin: auto;
   }
-  .presentation-story > .localiza-brand {
+  .presentation-story > .app-brand {
     margin-bottom: 25px;
   }
   .presentation-story h1 {

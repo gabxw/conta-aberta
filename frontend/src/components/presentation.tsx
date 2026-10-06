@@ -12,7 +12,7 @@ import {
   Smartphone,
   Wifi,
 } from "lucide-react";
-import { LocalizaBrand } from "./localiza-brand";
+import { AppBrand } from "./app-brand";
 import { requestApi } from "@/lib/api";
 import { money, number } from "@/lib/format";
 import type { Dashboard } from "@/lib/types";
@@ -92,7 +92,7 @@ export function Presentation() {
       </div>
       <section className="presentation-layout">
         <div className="presentation-story">
-          <LocalizaBrand />
+          <AppBrand />
           <span className="concept-label">
             <Smartphone size={15} />
             UMA EVOLUÇÃO CONCEITUAL DO APP

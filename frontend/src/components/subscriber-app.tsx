@@ -9,6 +9,7 @@ import {
   CircleHelp,
   FileText,
   House,
+  MapPin,
   Menu,
   Route,
   ShieldCheck,
@@ -16,16 +17,12 @@ import {
   Wrench,
   X,
 } from "lucide-react";
-import { LocalizaBrand } from "./localiza-brand";
+import { AppBrand } from "./app-brand";
 import { requestApi, track } from "@/lib/api";
-import { date, number } from "@/lib/format";
+import { date, money, number } from "@/lib/format";
 import type { Account } from "@/lib/account-types";
 import type { TimelineEvent, Usage } from "@/lib/types";
-import {
-  AccountStatement,
-  ContractDecisions,
-  Retrospective,
-} from "./account-views";
+import { AccountStatement, Retrospective } from "./account-views";
 import { OwnershipView } from "./ownership-view";
 import { ActionDialog, InfoDialog } from "./dialogs";
 import {
@@ -40,7 +37,6 @@ export type SubscriberScreen =
   | "home"
   | "account"
   | "comparison"
-  | "contract"
   | "recap"
   | "usage"
   | "services"
@@ -49,7 +45,6 @@ const routes = {
   home: "/",
   account: "/conta-aberta",
   comparison: "/vale-a-pena",
-  contract: "/fim-contrato",
   recap: "/retrospectiva",
   usage: "/historico",
   services: "/servicos",
@@ -59,7 +54,6 @@ const titles = {
   home: "Início",
   account: "Conta Aberta",
   comparison: "Vale a pena?",
-  contract: "Meu próximo contrato",
   recap: "Minha retrospectiva",
   usage: "Gestão de km",
   services: "Serviços",
@@ -137,7 +131,6 @@ export function SubscriberApp({ screen }: { screen: SubscriberScreen }) {
   useEffect(() => {
     track("page_view", path);
     if (screen === "account") track("account_view", path);
-    if (screen === "contract") track("contract_view", path);
     if (window.parent !== window)
       window.parent.postMessage(
         { type: "drivepulse:screen", path },
@@ -155,7 +148,7 @@ export function SubscriberApp({ screen }: { screen: SubscriberScreen }) {
   };
   const data = account?.dashboard;
   return (
-    <div className="subscriber-app localiza-theme">
+    <div className="subscriber-app app-theme">
       <a className="skip-link" href="#subscriber-content">
         Ir para o conteúdo
       </a>
@@ -170,9 +163,9 @@ export function SubscriberApp({ screen }: { screen: SubscriberScreen }) {
           </button>
           <Link
             href="/"
-            aria-label="Localiza Assinatura — protótipo independente"
+            aria-label="Conta Aberta, início"
           >
-            <LocalizaBrand light />
+            <AppBrand light />
           </Link>
           <div className="header-actions">
             <button
@@ -198,7 +191,6 @@ export function SubscriberApp({ screen }: { screen: SubscriberScreen }) {
       {menu && (
         <nav className="subscriber-menu" aria-label="Mais opções">
           <Link href="/vale-a-pena">Comparar com comprar</Link>
-          <Link href="/fim-contrato">Meu próximo contrato</Link>
           <Link href="/retrospectiva">Minha retrospectiva</Link>
           <Link href="/historico">Gestão de km</Link>
           <Link href="/apresentar">Apresentar o case</Link>
@@ -264,7 +256,7 @@ export function SubscriberApp({ screen }: { screen: SubscriberScreen }) {
           </div>
         )}
         <div className="subscriber-demo-note">
-          Conceito não oficial · dados fictícios{" "}
+          Conceito para o app Localiza Assinatura · dados de demonstração{" "}
           {data && (
             <span>
               ·{" "}
@@ -300,6 +292,46 @@ export function SubscriberApp({ screen }: { screen: SubscriberScreen }) {
           <>
             {screen === "home" && (
               <>
+                <section className="today-card" aria-label="Hoje na sua assinatura">
+                  <span className="today-label">
+                    Este mês sua assinatura já cobriu
+                  </span>
+                  <strong className="today-value">
+                    {money(account.today.coveredThisMonth)}
+                  </strong>
+                  <span className="today-chip">
+                    + {money(account.today.coveredToday)} hoje
+                  </span>
+                  <Sparkline values={account.today.cumulativeByDay} />
+                  <p className="today-note">
+                    É o que custaria ter este carro: desvalorização, IPVA,
+                    seguro, manutenção e o rendimento do dinheiro, pela FIPE.{" "}
+                    <Link href="/vale-a-pena">Ver a conta</Link>
+                  </p>
+                </section>
+                <section className="benefit-card">
+                  <span className="benefit-pin">
+                    <MapPin size={22} />
+                  </span>
+                  <div>
+                    <p>
+                      {account.benefit.title} · {account.benefit.distance}
+                    </p>
+                    <h2>
+                      {account.benefit.partner}: {account.benefit.discount}
+                    </h2>
+                    <p>{account.benefit.reason}</p>
+                    <button
+                      className="account-button secondary"
+                      onClick={() =>
+                        setNotice("Benefício ativado na demonstração.")
+                      }
+                    >
+                      Ativar benefício
+                      <ArrowRight size={17} />
+                    </button>
+                  </div>
+                </section>
                 <Link className="account-entry" href="/conta-aberta">
                   <div className="account-entry-top">
                     <span>
@@ -385,13 +417,6 @@ export function SubscriberApp({ screen }: { screen: SubscriberScreen }) {
             )}
             {screen === "account" && <AccountStatement account={account} />}
             {screen === "comparison" && <OwnershipView account={account} />}
-            {screen === "contract" && (
-              <ContractDecisions
-                account={account}
-                reload={load}
-                notify={setNotice}
-              />
-            )}
             {screen === "recap" && (
               <Retrospective account={account} notify={setNotice} />
             )}
@@ -443,7 +468,7 @@ export function SubscriberApp({ screen }: { screen: SubscriberScreen }) {
             className={
               path === href ||
               (href === "/conta-aberta" &&
-                ["comparison", "contract", "recap"].includes(screen))
+                ["comparison", "recap"].includes(screen))
                 ? "active"
                 : ""
             }
@@ -478,5 +503,31 @@ export function SubscriberApp({ screen }: { screen: SubscriberScreen }) {
         />
       )}
     </div>
+  );
+}
+
+// Linha do valor acumulado no mês, dia a dia.
+function Sparkline({ values }: { values: number[] }) {
+  if (values.length < 2) return null;
+  const max = Math.max(...values);
+  const points = values
+    .map((v, i) => `${(i / (values.length - 1)) * 300},${60 - (v / max) * 54}`)
+    .join(" ");
+  return (
+    <svg
+      className="today-spark"
+      viewBox="0 0 300 62"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <polygon points={`0,62 ${points} 300,62`} fill="#79de20" opacity=".25" />
+      <polyline
+        points={points}
+        fill="none"
+        stroke="#028444"
+        strokeWidth="3"
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
   );
 }

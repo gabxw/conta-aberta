@@ -109,11 +109,11 @@
   align-items: center;
   margin: 38px auto 0;
 }
-.case-presentation-story .localiza-brand {
+.case-presentation-story .app-brand {
   color: #04662b;
   margin-bottom: 29px;
 }
-.case-presentation-story .localiza-brand strong {
+.case-presentation-story .app-brand strong {
   font-size: 22px;
 }
 .case-kicker {
@@ -471,16 +471,16 @@
   justify-content: space-between;
   gap: 20px;
 }
-.subscriber-header .localiza-brand {
+.subscriber-header .app-brand {
   color: white;
   gap: 8px;
 }
-.subscriber-header .localiza-brand strong {
+.subscriber-header .app-brand strong {
   font-size: 22px;
   letter-spacing: -0.8px;
   line-height: 1.02;
 }
-.subscriber-header .localiza-brand svg {
+.subscriber-header .app-brand svg {
   width: 25px;
   height: 35px;
 }
@@ -1713,10 +1713,10 @@
     padding: 0 16px;
     gap: 10px;
   }
-  .subscriber-header .localiza-brand strong {
+  .subscriber-header .app-brand strong {
     font-size: 19px;
   }
-  .subscriber-header .localiza-brand svg {
+  .subscriber-header .app-brand svg {
     width: 23px;
     height: 31px;
   }

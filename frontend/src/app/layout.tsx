@@ -8,12 +8,13 @@ import "@fontsource/manrope/600.css";
 import "@fontsource/manrope/700.css";
 import "@fontsource/manrope/800.css";
 import "./globals.css";
-import "./localiza-theme.css";
+import "./app-theme.css";
 import "./subscriber.css";
+import "./conta-aberta.css";
 export const metadata: Metadata = {
-  title: "Localiza Assinatura · Conceito DrivePulse",
+  title: "Conta Aberta · DrivePulse",
   description:
-    "Protótipo independente DrivePulse inspirado no app Localiza Assinatura. Dados fictícios e ações demonstrativas.",
+    "Conceito Conta Aberta para o app de carro por assinatura, criado a partir do case Localiza no Ruptura 2026. Dados de demonstração.",
 };
 export default function RootLayout({
   children,

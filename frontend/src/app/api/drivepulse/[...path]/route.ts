@@ -11,6 +11,7 @@ const allowed = new Set([
   "events",
   "admin/overview",
   "health",
+  "assistant",
 ]);
 async function proxy(
   request: NextRequest,
@@ -34,7 +35,7 @@ async function proxy(
         headers: { "Content-Type": "application/json" },
         body: request.method === "POST" ? await request.text() : undefined,
         cache: "no-store",
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(endpoint === "assistant" ? 90000 : 15000),
       },
     );
     return new NextResponse(

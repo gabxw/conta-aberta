@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowDownLeft,
   ArrowRight,
@@ -22,6 +21,7 @@ import {
   Zap,
 } from "lucide-react";
 import { date, money, number } from "@/lib/format";
+import { VehicleIllustration } from "./vehicle-illustration";
 import type {
   ActionType,
   AdminOverview,
@@ -205,13 +205,7 @@ export function VehicleHero({ data, openAction }: ActionProps) {
         </span>
       </div>
       <div className="vehicle-stage">
-        <Image
-          src="/images/creta.webp"
-          alt="Hyundai Creta, imagem ilustrativa do modelo"
-          width={480}
-          height={248}
-          className="vehicle-photo"
-        />
+        <VehicleIllustration />
       </div>
       <div className="vehicle-title">
         <span className="plate">{data.vehicle.plate}</span>

@@ -35,15 +35,48 @@ export interface Comparison {
   method: string;
   scope: string;
 }
-export interface ContractOption {
-  id: string;
-  name: string;
-  description: string;
-  monthlyPrice: number | null;
-  allowanceKm: number | null;
-  fitsUsage: boolean;
-  recommended: boolean;
-  cta: string;
+export interface DataSource {
+  label: string;
+  value: string;
+  source: string;
+  url: string | null;
+}
+export interface DailyValue {
+  coveredThisMonth: number;
+  coveredToday: number;
+  dayOfMonth: number;
+  daysInMonth: number;
+  cumulativeByDay: number[];
+}
+export interface ContextualBenefit {
+  title: string;
+  partner: string;
+  distance: string;
+  discount: string;
+  reason: string;
+}
+export interface Destination {
+  city: string;
+  trips: number;
+  km: number;
+}
+export interface Recap {
+  periodLabel: string;
+  months: number;
+  totalKm: number;
+  worldTripPercent: number;
+  kmToMoon: number;
+  favoriteDestination: Destination;
+  otherDestinations: Destination[];
+  coveredTotal: number;
+  paidTotal: number;
+  difference: number;
+  equivalents: { count: number; label: string }[];
+  shareText: string;
+}
+export interface AssistantAnswer {
+  answer: string;
+  calculations: { name: string; input: string; result: string }[];
 }
 export interface Account {
   dashboard: Dashboard;
@@ -52,14 +85,15 @@ export interface Account {
   includedReferences: OwnershipPart[];
   estimatedCosts: OwnershipPart[];
   comparison: Comparison;
+  sources: DataSource[];
   recentAverageKm: number;
-  contractOptions: ContractOption[];
-  registeredInterests: string[];
   elapsedMonths: number;
   subscriptionPaidReference: number;
   periodLabel: string;
-  shareText: string;
   statementMonth: string;
   usedServicesReferenceTotal: number;
   usedServicesCount: number;
+  today: DailyValue;
+  benefit: ContextualBenefit;
+  recap: Recap;
 }
